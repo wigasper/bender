@@ -41,8 +41,8 @@ async def send_interval_message():
     
         sshd_failed = []
         #sshd_did = []
-        #with open("/var/log/auth.log", "r") as log:
-        with open("/Users/wigasper/Documents/bender/auth.log", "r") as log:
+        with open("/var/log/auth.log", "r") as log:
+        #with open("/Users/wigasper/Documents/bender/auth.log", "r") as log:
             for line in log:
                 match_today = re.search("^{}  {}".format(today.strftime("%b"), 
                                     today.day), line)
