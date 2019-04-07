@@ -43,26 +43,26 @@ async def sys_status():
     server = client.get_server(SERVER)
     ssh_status = os.popen('systemctl status ssh').read()
     ssh_status = ssh_status.split("\n")
-    msg = "SSHD status: {}".format(re.search("Active: (.*)$", ssh_status[2]).group(1))
+    msg = "**SSHD status:** {}".format(re.search("Active: (.*)$", ssh_status[2]).group(1))
     await client.send_message(server.get_channel(CHANNEL), msg)
-    msg = "Last action: {}".format(ssh_status[-2])
+    msg = "**Last action:** {}".format(ssh_status[-2])
     await client.send_message(server.get_channel(CHANNEL), msg)
-    msg = "Memory utilization: {}%".format(psutil.virtual_memory()[2])
+    msg = "**Memory utilization:** {}%".format(psutil.virtual_memory()[2])
     await client.send_message(server.get_channel(CHANNEL), msg)
-    msg = "Storage disk utilization: {}%".format(psutil.disk_usage('/media/wkg/storage')[3])
+    msg = "**Storage disk utilization:** {}%".format(psutil.disk_usage('/media/wkg/storage')[3])
     await client.send_message(server.get_channel(CHANNEL), msg)
     for temp in psutil.sensors_temperatures()['coretemp'][1:]:
-        msg = "{}: {} C".format(temp[0], temp[1])
+        msg = "**{}:** {} C".format(temp[0], temp[1])
         await client.send_message(server.get_channel(CHANNEL), msg)
     nvidia_stat = os.popen('nvidia-smi').read()
     nvidia_stat = nvidia_stat.split("\n")[8]
-    msg = "GPU fan: {}".format(re.search("^\|\s*(\d*%)", nvidia_stat).group(1))
+    msg = "**GPU fan:** {}".format(re.search("^\|\s*(\d*%)", nvidia_stat).group(1))
     await client.send_message(server.get_channel(CHANNEL), msg)
-    msg = "GPU temp: {}".format(re.search("\d*C", nvidia_stat).group())
+    msg = "**GPU temp:** {}".format(re.search("\d*C", nvidia_stat).group())
     await client.send_message(server.get_channel(CHANNEL), msg)
-    msg = "GPU power usage: {}".format(re.search("\d*W\s/\s\d*W", nvidia_stat).group())
+    msg = "**GPU power usage:** {}".format(re.search("\d*W\s/\s\d*W", nvidia_stat).group())
     await client.send_message(server.get_channel(CHANNEL), msg)
-    msg = "GPU memory util.: {}".format(re.search("\d*MiB\s/\s*\d*MiB", nvidia_stat).group())
+    msg = "**GPU memory util.:** {}".format(re.search("\d*MiB\s/\s*\d*MiB", nvidia_stat).group())
     await client.send_message(server.get_channel(CHANNEL), msg)
     
 async def parse_ssh_log():
@@ -87,13 +87,13 @@ async def parse_ssh_log():
             failed_ips.append(match.group())
     failed_ips = list(dict.fromkeys(failed_ips))
     
-    msg = "{} failed SSH login attempt(s) occurred in the past " \
+    msg = "**{}** failed SSH login attempt(s) occurred in the past " \
           "two days.".format(str(len(sshd_failed)))
           
     server = client.get_server(SERVER)
     await client.send_message(server.get_channel(CHANNEL), msg)
     if len(sshd_failed) > 0:
-        msg = "Failures originated from IP address(es):"
+        msg = "**Failures originated from IP address(es):**"
         await client.send_message(server.get_channel(CHANNEL), msg)
         for ip in failed_ips:
             await client.send_message(server.get_channel(CHANNEL), ip)
