@@ -5,9 +5,10 @@
 import re
 from datetime import datetime, timedelta
 import asyncio
+import os
 
 import discord
-
+import psutil
 
 TOKEN = "NTY0MjM2NDU1ODEyMjY4MDMy.XKk8Ug.-gz3XEcICHYdxyU5yhFNgrX-YFE"
 
@@ -25,6 +26,25 @@ async def on_message(message):
 
     if message.content.startswith('!hello'):
         msg = 'Hello {0.author.mention}'.format(message)
+        await client.send_message(message.channel, msg)
+    
+    if message.content.startswith('!sysstatus'):
+        msg = "Memory utilization: {}%".format(psutil.virtual_memory()[2])
+        await client.send_message(message.channel, msg)
+        msg = "Storage disk utilization: {}%".format(psutil.disk_usage('/media/wkg/storage')[3])
+        await client.send_message(message.channel, msg)
+        for temp in psutil.sensors_temperatures()['coretemp'][1:]:
+            msg = "{}: {} C".format(temp[0], temp[1])
+            await client.send_message(message.channel, msg)
+        nvidia_stat = os.popen('nvidia-smi').read()
+        nvidia_stat = nvidia_stat.split("\n")[8]
+        msg = "GPU fan: {}".format(re.search("^\|\s*(\d*%)", nvidia_stat).group(1))
+        await client.send_message(message.channel, msg)
+        msg = "GPU temp: {}".format(re.search("\d*C", nvidia_stat).group())
+        await client.send_message(message.channel, msg)
+        msg = "GPU power usage: {}".format(re.search("\d*W\s/\s\d*W", nvidia_stat).group())
+        await client.send_message(message.channel, msg)
+        msg = "GPU memory util.: {}".format(re.search("\d*MiB\s/\s*\d*MiB", nvidia_stat).group())
         await client.send_message(message.channel, msg)
         
     if message.content.startswith('!byerobot'):
@@ -66,10 +86,11 @@ async def send_interval_message():
               
         server = client.get_server(SERVER)
         await client.send_message(server.get_channel(CHANNEL), msg)
-        msg = "Failures originated from IP address(es):"
-        await client.send_message(server.get_channel(CHANNEL), msg)
-        for ip in failed_ips:
-            await client.send_message(server.get_channel(CHANNEL), ip)
+        if len(sshd_failed) > 0:
+            msg = "Failures originated from IP address(es):"
+            await client.send_message(server.get_channel(CHANNEL), msg)
+            for ip in failed_ips:
+                await client.send_message(server.get_channel(CHANNEL), ip)
             
         await asyncio.sleep(interval)
 
