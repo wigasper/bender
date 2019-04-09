@@ -6,6 +6,7 @@ import re
 from datetime import datetime, timedelta
 import asyncio
 import os
+import time
 
 import discord
 import psutil
@@ -15,6 +16,8 @@ TOKEN = "NTY0MjM2NDU1ODEyMjY4MDMy.XKk8Ug.-gz3XEcICHYdxyU5yhFNgrX-YFE"
 SERVER = "564237008814211082"
 
 CHANNEL = "564237008814211084"
+
+#time.sleep(180)
 
 client = discord.Client()
 
@@ -79,6 +82,8 @@ async def parse_ssh_log():
             if match_today or match_yesterday:
                 if re.search("sshd.*Failed", line):
                     sshd_failed.append(line)
+                if re.search("sshd.*Connection closed", line):
+                    sshd_failed.append(line)
 
     failed_ips = []
     for fail in sshd_failed:
@@ -87,7 +92,7 @@ async def parse_ssh_log():
             failed_ips.append(match.group())
     failed_ips = list(dict.fromkeys(failed_ips))
     
-    msg = "**{}** failed SSH login attempt(s) occurred in the past " \
+    msg = "**{}** failed SSH login/authentication attempt(s) occurred in the past " \
           "two days.".format(str(len(sshd_failed)))
           
     server = client.get_server(SERVER)
