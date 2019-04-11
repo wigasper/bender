@@ -3,7 +3,7 @@ import getopt
 
 import discord
 
-def notify(msg):
+def discord_notification(msg):
     if msg is None:
         msg = "Job complete"
     
@@ -38,7 +38,7 @@ def notify(msg):
 def usage():
     print("\nUsage: ", sys.argv[0], " \n")
 
-class notify_job_complete:
+class discord_notification:
     
     def main():
         options = {}        # Command line options dict
