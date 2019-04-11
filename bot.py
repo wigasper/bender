@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
-#https://www.devdungeon.com/content/make-discord-bot-python
 import re
 from datetime import datetime, timedelta
 import asyncio
@@ -11,19 +9,29 @@ import time
 import discord
 import psutil
 
-TOKEN = "NTY0MjM2NDU1ODEyMjY4MDMy.XKk8Ug.-gz3XEcICHYdxyU5yhFNgrX-YFE"
+# creds format:
+# [TOKEN, SERVER, CHANNEL]
+creds = []
 
-SERVER = "564237008814211082"
+# credentials.txt should consist of the following elements
+# in the following format
+# token\nserver\nchannel
+# token, server, and channel in that order separated by newlines
+with open("credentials.txt") as fp:
+    for line in fp:
+        creds.append(line.strip("\n"))
 
-CHANNEL = "564237008814211084"
+TOKEN = creds[0]
 
-#time.sleep(180)
+SERVER = creds[1]
+
+CHANNEL = creds[2]
 
 client = discord.Client()
 
 @client.event
 async def on_message(message):
-    # we do not want the bot to reply to itself
+    # prevent bot from replying to itself
     if message.author == client.user:
         return
 
