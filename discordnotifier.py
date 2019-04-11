@@ -15,7 +15,7 @@ def discord_notification(msg):
     # in the following format
     # token\nserver\nchannel
     # token, server, and channel in that order separated by newlines
-    with open("credentials.txt") as fp:
+    with open("/media/wkg/storage/bender/credentials.txt") as fp:
         for line in fp:
             creds.append(line.strip("\n"))
     
@@ -38,7 +38,7 @@ def discord_notification(msg):
 def usage():
     print("\nUsage: ", sys.argv[0], " \n")
 
-class discord_notification:
+class discordnotifier:
     
     def main():
         options = {}        # Command line options dict
