@@ -72,7 +72,7 @@ class discord_notification:
         else:
             msg = "Job completed."
 
-        notify(msg)
+        discord_notification(msg)
 
     if __name__ == '__main__':
         main()
