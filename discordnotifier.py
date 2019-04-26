@@ -45,34 +45,28 @@ class discordnotifier:
     def main():
         options = {}        # Command line options dict
         
-        # Read in the command-line arguments into the opts list.
+        # Read in the command-line arguments into the opts
         try:
             opts, args = getopt.getopt(sys.argv[1:], "m:")
         
         except getopt.GetoptError as err:
-            # Redirect STDERR to STDOUT (insures screen display)
             sys.stdout = sys.stderr
 
             # Print help information
             print(str(err))
 
-            # Print usage information; usage() is the name of a
-            # function (declared elsewhere) that displays usage 
-            # information (just a series of print statements).
             usage()
 
             # Exit the program
             sys.exit(2)
             
-        # Process the opt and arg lists displaying the argument of
-        # each option.
         for (opt, arg) in opts:
             options[opt] = arg
             
         if "-m" in options.keys():
             msg = options["-m"]
         else:
-            msg = "Job completed."
+            msg = sys.stdin.read()
 
         discord_notification(msg)
 
