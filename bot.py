@@ -17,7 +17,7 @@ creds = []
 # in the following format
 # token\nserver\nchannel
 # token, server, and channel in that order separated by newlines
-with open("/media/wkg/storage/bender/credentials.txt") as fp:
+with open("credentials.txt") as fp:
     for line in fp:
         creds.append(line.strip("\n"))
 
