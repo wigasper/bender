@@ -7,4 +7,4 @@ Bender is my friendly Discord bot that does a handful of simple tasks. I update 
 * At the command line or in Bash scripts, or with system calls in other languages by piping the desired message into stdin
 
 sshd-login is an example of a simple script that can will send a message with every SSH login. To make this happen, a line like this can be added to /etc/pam.d/sshd:
-> session    optional     pam_exec.so /path/to/sshd-login
+     session    optional     pam_exec.so /path/to/sshd-login
