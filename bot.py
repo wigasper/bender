@@ -3,7 +3,6 @@
 import re
 from datetime import datetime, timedelta
 import asyncio
-#import os
 import time
 from subprocess import Popen, PIPE
 
@@ -18,7 +17,7 @@ creds = []
 # in the following format
 # token\nserver\nchannel
 # token, server, and channel in that order separated by newlines
-with open("credentials.txt") as fp:
+with open("/media/wkg/storage/bender/credentials.txt") as fp:
     for line in fp:
         creds.append(line.strip("\n"))
 
@@ -39,13 +38,13 @@ async def on_message(message):
     if message.content.startswith('!hello'):
         msg = 'Hello {0.author.mention}'.format(message)
         await client.send_message(message.channel, msg)
-    
+
     if message.content.startswith('!sysstatus'):
         await sys_status()
-      
+
     if message.content.startswith('!checklog'):
         await parse_ssh_log()
-        
+
     if message.content.startswith('!byerobot'):
         msg = 'Bite my shiny metal ass!'
         await client.send_message(message.channel, msg)
@@ -53,7 +52,6 @@ async def on_message(message):
 
 async def sys_status():
     server = client.get_server(SERVER)
-    #ssh_status = os.popen('systemctl status ssh').read()
     with Popen("systemctl status ssh", stdout=PIPE, stderr=PIPE, shell=True) as proc:
         ssh_status = proc.communicate()[0].decode("utf-8")
     ssh_status = ssh_status.split("\n")
@@ -68,12 +66,10 @@ async def sys_status():
     for temp in psutil.sensors_temperatures()['coretemp'][1:]:
         msg = "**{}:** {} C".format(temp[0], temp[1])
         await client.send_message(server.get_channel(CHANNEL), msg)
-    #nvidia_stat = os.popen('nvidia-smi').read()
     with Popen("nvidia-smi", stdout=PIPE, stderr=PIPE, shell=True) as proc:
         nvidia_stat = proc.communicate()[0].decode("utf-8")
         if nvidia_stat:
             nvidia_stat = nvidia_stat.split("\n")[8]
-            #nvidia_stat = nvidia_stat.split("\n")[8]
             msg = "**GPU fan:** {}".format(re.search("^\|\s*(\d*%)", nvidia_stat).group(1))
             await client.send_message(server.get_channel(CHANNEL), msg)
             msg = "**GPU temp:** {}".format(re.search("\d*C", nvidia_stat).group())
@@ -82,7 +78,7 @@ async def sys_status():
             await client.send_message(server.get_channel(CHANNEL), msg)
             msg = "**GPU memory util.:** {}".format(re.search("\d*MiB\s/\s*\d*MiB", nvidia_stat).group())
             await client.send_message(server.get_channel(CHANNEL), msg)
-    
+
 async def parse_ssh_log():
     today = datetime.now()
     yesterday = datetime.now() - timedelta(1)
@@ -106,10 +102,10 @@ async def parse_ssh_log():
         if match:
             failed_ips.append(match.group())
     failed_ips = list(dict.fromkeys(failed_ips))
-    
+
     msg = "**{}** failed SSH login/authentication attempt(s) occurred in the past " \
           "two days.".format(str(len(sshd_failed)))
-          
+
     server = client.get_server(SERVER)
     await client.send_message(server.get_channel(CHANNEL), msg)
     if len(sshd_failed) > 0:
@@ -123,20 +119,17 @@ async def send_interval_message():
     interval = 86400
     while not client.is_closed:
         await sys_status()
-        await parse_ssh_log()            
+        await parse_ssh_log()
         await asyncio.sleep(interval)
 
 @client.event
-async def on_ready():    
+async def on_ready():
     client.loop.create_task(send_interval_message())
-    
+
     print('Logged in as')
     print(client.user.name)
     print(client.user.id)
     print('------')
 
-while True:
-    try:
-        client.run(TOKEN)
-    except aiohttp.errors.ClientOSError:
-        time.sleep(300)
+client.run(TOKEN)
+
