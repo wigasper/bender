@@ -3,8 +3,9 @@
 import re
 from datetime import datetime, timedelta
 import asyncio
-import os
+#import os
 import time
+from subprocess import Popen, PIPE
 
 import discord
 import psutil
@@ -52,7 +53,9 @@ async def on_message(message):
 
 async def sys_status():
     server = client.get_server(SERVER)
-    ssh_status = os.popen('systemctl status ssh').read()
+    #ssh_status = os.popen('systemctl status ssh').read()
+    with Popen("systemctl status ssh", stdout=PIPE, stderr=PIPE, shell=True) as proc:
+        ssh_status = proc.communicate()[0].decode("utf-8")
     ssh_status = ssh_status.split("\n")
     msg = "**SSHD status:** {}".format(re.search("Active: (.*)$", ssh_status[2]).group(1))
     await client.send_message(server.get_channel(CHANNEL), msg)
@@ -65,16 +68,20 @@ async def sys_status():
     for temp in psutil.sensors_temperatures()['coretemp'][1:]:
         msg = "**{}:** {} C".format(temp[0], temp[1])
         await client.send_message(server.get_channel(CHANNEL), msg)
-    nvidia_stat = os.popen('nvidia-smi').read()
-    nvidia_stat = nvidia_stat.split("\n")[8]
-    msg = "**GPU fan:** {}".format(re.search("^\|\s*(\d*%)", nvidia_stat).group(1))
-    await client.send_message(server.get_channel(CHANNEL), msg)
-    msg = "**GPU temp:** {}".format(re.search("\d*C", nvidia_stat).group())
-    await client.send_message(server.get_channel(CHANNEL), msg)
-    msg = "**GPU power usage:** {}".format(re.search("\d*W\s/\s\d*W", nvidia_stat).group())
-    await client.send_message(server.get_channel(CHANNEL), msg)
-    msg = "**GPU memory util.:** {}".format(re.search("\d*MiB\s/\s*\d*MiB", nvidia_stat).group())
-    await client.send_message(server.get_channel(CHANNEL), msg)
+    #nvidia_stat = os.popen('nvidia-smi').read()
+    with Popen("nvidia-smi", stdout=PIPE, stderr=PIPE, shell=True) as proc:
+        nvidia_stat = proc.communicate()[0].decode("utf-8")
+        if nvidia_stat:
+            nvidia_stat = nvidia_stat.split("\n")[8]
+            #nvidia_stat = nvidia_stat.split("\n")[8]
+            msg = "**GPU fan:** {}".format(re.search("^\|\s*(\d*%)", nvidia_stat).group(1))
+            await client.send_message(server.get_channel(CHANNEL), msg)
+            msg = "**GPU temp:** {}".format(re.search("\d*C", nvidia_stat).group())
+            await client.send_message(server.get_channel(CHANNEL), msg)
+            msg = "**GPU power usage:** {}".format(re.search("\d*W\s/\s\d*W", nvidia_stat).group())
+            await client.send_message(server.get_channel(CHANNEL), msg)
+            msg = "**GPU memory util.:** {}".format(re.search("\d*MiB\s/\s*\d*MiB", nvidia_stat).group())
+            await client.send_message(server.get_channel(CHANNEL), msg)
     
 async def parse_ssh_log():
     today = datetime.now()
@@ -128,4 +135,8 @@ async def on_ready():
     print(client.user.id)
     print('------')
 
-client.run(TOKEN)
+while True:
+    try:
+        client.run(TOKEN)
+    except aiohttp.errors.ClientOSError:
+        time.sleep(300)
