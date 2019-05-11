@@ -1,5 +1,7 @@
 # bender
-Bender is my friendly Discord bot that does a few simple tasks. I update him as needed. He provides simple system status updates and parses SSH logs. A particularly useful feature is the discordnotifier.py script:
+Bender is my friendly Discord bot that does a few simple tasks. I update him as needed. He provides simple system status updates and parses SSH logs. The bot.py file can be run persistently as a systemd service (ideally) or started as a cron job.
+
+A particularly useful feature is the discordnotifier.py script:
 
 **discordnotifier.py** - This script can be used to send a notification on demand. I use it to send me notifications when long jobs have been completed and when SSH logins occur. It can be used:
 * By Python: if copied to your lib/python3.6 directory it can easily be used with an import and a single call
