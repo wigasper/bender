@@ -86,10 +86,8 @@ async def parse_ssh_log():
     sshd_failed = []
     with open("/var/log/auth.log", "r") as log:
         for line in log:
-            match_today = re.search("^{}  {}".format(today.strftime("%b"), 
-                                today.day), line)
-            match_yesterday = re.search("^{}  {}".format(yesterday.strftime("%b"), 
-                                yesterday.day), line)
+            match_today = re.search(f"^{today.strftime('%b')}\s+{today.day}", line)
+            match_yesterday = re.search(f"^{yesterday.strftime('%b')}\s+{yesterday.day}", line)
             if match_today or match_yesterday:
                 if re.search("sshd.*Failed", line):
                     sshd_failed.append(line)
@@ -98,7 +96,7 @@ async def parse_ssh_log():
 
     failed_ips = []
     for fail in sshd_failed:
-        match = re.search("\d*\.\d*\.\d*\.\d*", fail)
+        match = re.search("\d+\.\d+\.\d+\.\d+", fail)
         if match:
             failed_ips.append(match.group())
     failed_ips = list(dict.fromkeys(failed_ips))
