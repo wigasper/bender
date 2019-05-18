@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import sys
-import getopt
+import argparse
 
 import discord
 
@@ -37,38 +37,18 @@ def discord_notification(msg):
 
     client.run(TOKEN)
 
-def usage():
-    print("\nUsage: ", sys.argv[0], " \n")
+def main():
+    # Get command line args
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-m", "--message", help="a message to have the bot send")
+    args = parser.parse_args()
 
-class discordnotifier:
-    
-    def main():
-        options = {}        # Command line options dict
-        
-        # Read in the command-line arguments into the opts
-        try:
-            opts, args = getopt.getopt(sys.argv[1:], "m:")
-        
-        except getopt.GetoptError as err:
-            sys.stdout = sys.stderr
+    if args.message:
+        msg = args.message
+    else:
+        msg = sys.stdin.read()
 
-            # Print help information
-            print(str(err))
+    discord_notification(msg)
 
-            usage()
-
-            # Exit the program
-            sys.exit(2)
-            
-        for (opt, arg) in opts:
-            options[opt] = arg
-            
-        if "-m" in options.keys():
-            msg = options["-m"]
-        else:
-            msg = sys.stdin.read()
-
-        discord_notification(msg)
-
-    if __name__ == '__main__':
-        main()
+if __name__ == '__main__':
+    main()
