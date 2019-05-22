@@ -1,5 +1,5 @@
 # bender
-Bender is my friendly Discord bot that does a few simple tasks. I update him as needed. He provides simple system status updates and parses SSH logs. The bot.py file can be run persistently as a systemd service (ideally) or started as a cron job.
+Bender is my friendly Discord bot that does a few simple tasks. I update him as needed. He provides simple system status updates and parses my auth log for SSH events. The bot.py file can be run persistently as a systemd service (ideally) or started as a cron job.
 
 A particularly useful feature is the discordnotifier.py script:
 
