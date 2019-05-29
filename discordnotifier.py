@@ -48,7 +48,7 @@ def main():
     else:
         msg = sys.stdin.read()
 
-    discord_notification(msg)
+    notify(msg)
 
 if __name__ == '__main__':
     main()
