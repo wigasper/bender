@@ -5,7 +5,7 @@ import argparse
 
 import discord
 
-def discord_notification(msg):
+def notify(msg):
     if msg is None:
         msg = "Job complete"
     
