@@ -2,6 +2,7 @@
 
 import sys
 import argparse
+import asyncio
 
 import discord
 
@@ -27,7 +28,7 @@ def notify(msg):
 
     CHANNEL = creds[2]
 
-    client = discord.Client()
+    client = discord.Client(loop=asyncio.new_event_loop())
 
     @client.event
     async def on_ready(): 
