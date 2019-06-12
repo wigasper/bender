@@ -2,6 +2,6 @@
 [ "$PAM_TYPE" = "open_session" ] || exit 0
 {
   echo "$PAM_SERVICE login for $PAM_USER at $PAM_RHOST `date`"
-} | /home/wkg/anaconda3/bin/python3 /media/wkg/storage/bender/discordnotifier.py
+} | /home/wkg/anaconda3/bin/python3 /media/wkg/storage/bender/notify.py
 
 
