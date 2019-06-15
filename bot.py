@@ -23,8 +23,8 @@ class Bender():
 
         self.client.start_listener_thread()
 
-        self.sys_status()
-        self.parse_auth_log()
+        self.room.send_text(self.sys_status())
+        self.room.send_text(self.parse_auth_log())
 
         while self.running:
             time.sleep(1)
@@ -57,9 +57,11 @@ class Bender():
         if event["content"]["msgtype"] != "m.text":
             return
         if event["content"]["body"].startswith("!status"):
-            self.sys_status()
+            self.room.send_text(self.sys_status())
         if event["content"]["body"].startswith("!checklog"):
-            self.parse_auth_log()
+            self.room.send_text(self.parse_auth_log())
+        if event["content"]["body"].startswith("!temps"):
+            self.room.send_text(self.get_cpu_temps())
         # Fix this
         if event["content"]["body"].startswith("!byerobot"):
             self.room.send_text("Bite my shiny metal ass!")
@@ -68,19 +70,31 @@ class Bender():
             #self.client.logout()
             #self.running = False
 
+    def get_cpu_temps(self):
+        temps = []
+        for temp in psutil.sensors_temperatures()['coretemp'][1:]:
+            temps.append(f"{temp[1]} C")
+        temps = " | ".join(temps)
+
+        return "".join(["Core Temps: ", temps])
+
     def sys_status(self):
+        msg = []
+        pub_ip = check_output(f"wget -qO- {self.config.get('bender', 'ip_url')}", shell=True).decode("utf-8")
+        msg.append(f"Bender online at {pub_ip}")
         ssh_status = check_output("systemctl status ssh", shell=True).decode("utf-8")
         ssh_status = ssh_status.split("\n")
-        msg = [f"SSHD status: {re.search('Active: (.*)$', ssh_status[2]).group(1)}"]
+        msg.append(f"SSHD status: {re.search('Active: (.*)$', ssh_status[2]).group(1)}")
         msg.append(f"Last action: {ssh_status[-2]}")
-        msg.append(f"Memory utilization: {psutil.virtual_memory()[2]}%")
+        memory_used = int(psutil.virtual_memory()[3] / 100000000) / 10.0
+        memory_total = int(psutil.virtual_memory()[0] / 100000000) / 10.0
+        msg.append(f"Memory utilization: {memory_used}G/{memory_total}G")
         msg.append(f"Storage disk utilization: {psutil.disk_usage('/media/wkg/storage')[3]}%")
-        for temp in psutil.sensors_temperatures()['coretemp'][1:]:
-            msg.append(f"{temp[0]}: {temp[1]} C")
+        msg.append(self.get_cpu_temps())
         nvidia_stat = check_output("nvidia-smi", shell=True).decode("utf-8")
         nvidia_stat = nvidia_stat.split("\n")[8]
-        fan = re.search('^\|\s*(\d*%)', nvidia_stat).group(1)
-        msg.append(f"GPU fan: {fan}")
+        #fan = re.search('^\|\s*(\d*%)', nvidia_stat).group(1)
+        #msg.append(f"GPU fan: {fan}")
         temp = re.search('\d*C', nvidia_stat).group()
         msg.append(f"GPU temp: {temp}")
         power = re.search('\d*W\s/\s\d*W', nvidia_stat).group()
@@ -89,7 +103,7 @@ class Bender():
         msg.append(f"GPU memory util.: {memory}")
 
         msg = "\n".join(msg)
-        self.room.send_text(msg)
+        return msg
 
     def parse_auth_log(self):
         today = datetime.now()
@@ -122,8 +136,8 @@ class Bender():
                 msg.append(ip)
 
         msg = "\n".join(msg)
-
-        self.room.send_text(msg)
+        
+        return msg
 
 def main():
     # Set up logger
