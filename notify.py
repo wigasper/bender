@@ -11,7 +11,7 @@ def notify(msg):
         msg = "Job complete"
     
     config = configparser.ConfigParser()
-    config.read("bot.cfg")
+    config.read("/media/wkg/storage/bender/bot.cfg")
 
     host = config.get("bender", "host")
     user = config.get("bender", "user")

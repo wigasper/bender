@@ -20,7 +20,6 @@ class Bender():
 
         self.connect()
         
-
         self.client.start_listener_thread()
 
         self.room.send_text(self.sys_status())
