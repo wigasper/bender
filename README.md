@@ -7,7 +7,7 @@ A particularly useful feature is the notify.py script:
 * By Python: if copied to your lib/python3.6 directory it can easily be used with an import and a single call
 ```python
 from notify import notify
-discord_notification("Oh hello")
+notify("Oh hello")
 ```
 * At the command line, in Bash scripts, or with system calls in other languages: by using the -m option followed by the desired message
 ```
