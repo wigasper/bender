@@ -61,6 +61,8 @@ class Bender():
             self.room.send_text(self.parse_auth_log())
         if event["content"]["body"].startswith("!temps"):
             self.room.send_text(self.get_cpu_temps())
+        if event["content"]["body"].startswith("!help"):
+            self.room.send_text(self.help())
         # Fix this
         if event["content"]["body"].startswith("!byerobot"):
             self.room.send_text("Bite my shiny metal ass!")
@@ -68,6 +70,14 @@ class Bender():
             #self.client.stop_listener_thread()
             #self.client.logout()
             #self.running = False
+
+    def help(self):
+        msg = ["Currently supported functions:"]
+        msg.append("!status - Simple system metrics")
+        msg.append("!checklog - Parse and summarize auth log")
+        msg.append("!temps - Get CPU core temps")
+
+        return "\n".join(msg)
 
     def get_cpu_temps(self):
         temps = []
@@ -101,8 +111,7 @@ class Bender():
         memory = re.search('\d*MiB\s/\s*\d*MiB', nvidia_stat).group()
         msg.append(f"GPU memory util.: {memory}")
 
-        msg = "\n".join(msg)
-        return msg
+        return "\n".join(msg)
 
     def parse_auth_log(self):
         today = datetime.now()
@@ -133,10 +142,8 @@ class Bender():
             msg.append("Failures originated from IP address(es):")
             for ip in failed_ips:
                 msg.append(ip)
-
-        msg = "\n".join(msg)
         
-        return msg
+        return "\n".join(msg)
 
 def main():
     # Set up logger
