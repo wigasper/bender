@@ -3,6 +3,7 @@
 import re
 import sys
 import time
+import socket
 import logging
 import traceback
 import configparser
@@ -24,9 +25,25 @@ class Bender():
 
         self.room.send_text(self.sys_status())
         self.room.send_text(self.parse_auth_log())
+        
+        LOCAL_HOST = self.config.get("bender", "local_host")
+        PORT = int(self.config.get("bender", "port"))
 
         while self.running:
-            time.sleep(1)
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.bind((LOCAL_HOST, PORT))
+                s.listen()
+                conn, _address = s.accept()
+
+                with conn:
+                    data = ""
+                    while True:
+                        if data:
+                            self.room.send_text(data.decode("utf-8"))
+                            data = ""
+                            conn, _address = s.accept()
+                        time.sleep(1)
+                        data = conn.recv(1024)
 
     def connect(self):
         host = self.config.get("bender", "host")

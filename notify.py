@@ -3,8 +3,7 @@
 import sys
 import argparse
 import configparser
-
-from matrix_client.client import MatrixClient
+import socket
 
 def notify(msg):
     if msg is None:
@@ -12,18 +11,13 @@ def notify(msg):
     
     config = configparser.ConfigParser()
     config.read("/media/wkg/storage/bender/bot.cfg")
+    
+    LOCAL_HOST = config.get("bender", "local_host")
+    PORT = int(config.get("bender", "port"))
 
-    host = config.get("bender", "host")
-    user = config.get("bender", "user")
-    password = config.get("bender", "password")
-    room = config.get("bender", "room")
-
-    client = MatrixClient(host)
-    client.login(username=user, password=password)
-    room = client.join_room(room)
-    room.send_text(msg)
-
-    client.logout()
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((LOCAL_HOST, PORT))
+        s.sendall(str.encode(msg))
 
 def main():
     # Get command line args
